@@ -3,7 +3,7 @@ import "./interfaces/AttractionHolderI.sol";
 import "./Owned.sol";
 
 
-contract AttractionHolder is Owned {
+contract AttractionHolder is AttractionHolderI, Owned {
     
     struct AttractionStruct {
         uint fee;
@@ -42,6 +42,7 @@ contract AttractionHolder is Owned {
     }
     
     function getAttractionFee (address attraction) 
+        constant
         public
         returns(uint)
     {

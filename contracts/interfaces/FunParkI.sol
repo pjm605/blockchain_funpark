@@ -23,6 +23,7 @@ contract FunParkI {
 
     function customerDeposit ()
         public
+        payable
         returns (bool success);
     
     event LogAttractionEntered (

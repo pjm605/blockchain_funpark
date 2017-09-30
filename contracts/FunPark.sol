@@ -1,6 +1,6 @@
 pragma solidity ^0.4.13;
 
-import "./FunParkI.sol";
+import "./interfaces/FunParkI.sol";
 import "./Owned.sol";
 import "./Pausable.sol";
 import "./AttractionHolder.sol";

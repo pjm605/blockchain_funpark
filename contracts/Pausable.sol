@@ -1,9 +1,10 @@
 pragma solidity ^0.4.13;
 
+import "./interfaces/PausableI.sol";
 import "./Owned.sol";
 
 
-contract Pausable is Owned {
+contract Pausable is PausableI, Owned {
     bool public paused;
     
     modifier whenPaused {
@@ -26,6 +27,7 @@ contract Pausable is Owned {
     {
         require(paused != newState);
         paused = newState;
+        LogPausedSet(msg.sender, paused);
         return true;
     }
     

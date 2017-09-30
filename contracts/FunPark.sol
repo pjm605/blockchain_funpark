@@ -1,22 +1,78 @@
 pragma solidity ^0.4.13;
 
+import "./FunParkI.sol";
 import "./Owned.sol";
 import "./Pausable.sol";
 import "./AttractionHolder.sol";
 
 
-contract FunPark is Owned, Pausable, AttractionHolder {
+contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
     
-    // struct RideHistory {
-    //   address attraction;
-    //   uint deposit;
-    // }
+    mapping (address => uint256) public registeredCustomers;
+    address[] private registeredCustomersIndex;
     
-    //mapping(address => RideHistory[]) history;
-    // history[msg.sender].push(obj);
     mapping (address => uint) balances;
     
-    function FunPark () {
+    function FunPark () 
+        Pausable(false)
+    {
+    }
+    
+    function registerCustomer (address customer) 
+        public
+        fromOwner
+        returns (bool success)
+    {
+        require(customer != address(0));
+        require(isRegisteredCustomer(customer) == false);
+        registeredCustomers[customer] = registeredCustomersIndex.push(customer) - 1;
+        
+        LogRegisterCustomer(customer);
+        return true;
+    }
+    
+    function removeCustomer (address customer) 
+        public
+        fromOwner
+        returns (bool success)
+    {
+        require(customer != address(0));
+        require(isRegisteredCustomer(customer) == true);
+        
+        uint targetCustomerIndex = registeredCustomers[customer];
+        address customerToMove = registeredCustomersIndex[registeredCustomersIndex.length - 1];
+        registeredCustomersIndex[targetCustomerIndex] = customerToMove;
+        registeredCustomers[customerToMove] = targetCustomerIndex;
+        registeredCustomersIndex.length--;
+        
+        LogRemoveCustomer(customer);
+        return true;
+    }
+    
+    function isRegisteredCustomer (address customer)
+        constant
+        public
+        returns (bool isRegistered)
+    {
+        if (registeredCustomersIndex.length == 0) {
+            return false;
+        } 
+        
+        return (registeredCustomersIndex[registeredCustomers[customer]] == customer);
+    }
+    
+    function customerDeposit ()
+        public
+        payable
+        returns (bool success)
+    {
+        require(isRegisteredCustomer(msg.sender) == true);
+        require(msg.value > 0);
+        
+        balances[msg.sender] += msg.value;
+        
+        LogCustomerDeposit(msg.sender, msg.value);
+        return true;
     }
     
     function enterAttraction (address attraction)
@@ -27,17 +83,16 @@ contract FunPark is Owned, Pausable, AttractionHolder {
         require(isAttraction(attraction) == true);
         require(isPaused() == false);
         require(attraction != address(0));
-        require(msg.value != 0);
+        require(isRegisteredCustomer(msg.sender) == true);
+        
         uint attractionFee = getAttractionFee(attraction);
-        require (msg.value >= attractionFee);
-
-        if (msg.value > attractionFee) {        
-            uint refund = (msg.value - attractionFee);
-            balances[owner] += attractionFee;
-        //    registeredCustomer(?).transfer(refund)
-        } else { 
-            balances[owner] += msg.value;
-        }
+        require (balances[msg.sender] >= attractionFee);
+        
+        balances[msg.sender] -= attractionFee;
+        balances[owner] += attractionFee;
+        
+        LogAttractionEntered(attraction, msg.sender, attractionFee);
+        return true;
     }
     
     function getCollectedFeesAmount () 
@@ -48,14 +103,16 @@ contract FunPark is Owned, Pausable, AttractionHolder {
         return balances[owner];
     }
     
-    function withdrawCollectedFees() 
+    function withdrawBalances() 
         public
-        fromOwner
+        payable
         returns(bool success)
     {
         uint amount = balances[msg.sender];
         balances[msg.sender] = 0;
         msg.sender.transfer(amount);
+        
+        LogWithdrawBalances(msg.sender, amount);
         return true;
     }
 

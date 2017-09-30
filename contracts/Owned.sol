@@ -1,7 +1,8 @@
 pragma solidity ^0.4.13;
+import "./interfaces/OwnedI.sol";
 
 
-contract Owned {
+contract Owned is OwnedI {
 	address owner;
 	
 	modifier fromOwner {
@@ -21,7 +22,9 @@ contract Owned {
 		require(owner != newOwner);
 		address previousOwner = owner;
 		owner = newOwner;
-	
+		
+		LogOwnerSet(previousOwner, owner);
+
 		return true;
 	}
 

@@ -1,5 +1,5 @@
 pragma solidity ^0.4.13;
-
+import "./interfaces/AttractionHolderI.sol";
 import "./Owned.sol";
 
 
@@ -23,6 +23,8 @@ contract AttractionHolder is Owned {
         require(isAttraction(attraction) == false);
         attractions[attraction].fee = _fee;
         attractions[attraction].index = attractionsIndex.push(attraction)-1;
+        
+        LogAttractionAdded(msg.sender, attraction, _fee);
         return attraction;
     }
     
@@ -34,6 +36,8 @@ contract AttractionHolder is Owned {
         require(isAttraction(attraction) == true);
         require(newFee != 0);
         attractions[attraction].fee = newFee;
+        
+        LogAttractionFeeUpdate(msg.sender, attraction, newFee);
         return true;
     }
     
@@ -72,6 +76,7 @@ contract AttractionHolder is Owned {
         attractions[attractionToMove].index = targetAttractionIndex;
         attractionsIndex.length --;
         
+        LogAttractionRemoved(msg.sender, attraction);
         return true;
     }
 }

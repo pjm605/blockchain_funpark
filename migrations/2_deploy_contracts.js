@@ -1,6 +1,6 @@
 
-var MetaCoin = artifacts.require("./MetaCoin.sol");
+var Hub = artifacts.require("./Hub.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(MetaCoin);
+  deployer.deploy(Hub);
 };

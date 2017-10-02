@@ -8,7 +8,7 @@ contract AttractionHolderI {
         address indexed attraction,
         uint attractionFee);
 
-    function addNewAttraction (address attraction, uint _fee)
+    function addNewAttraction (address attraction, uint _fee, uint _feeInTokens)
         public
         returns (address newAttraction);
         
@@ -25,6 +25,11 @@ contract AttractionHolderI {
         constant
         public
         returns (uint attractionFee);
+    
+    function getAttractionFeeInTokens (address attraction)
+        constant
+        public
+        returns (uint attractionFeeInTokens);
 
     function isAttraction (address attraction)
         constant

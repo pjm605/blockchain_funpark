@@ -4,6 +4,7 @@ import "./interfaces/FunParkI.sol";
 import "./Owned.sol";
 import "./Pausable.sol";
 import "./AttractionHolder.sol";
+import "./FunParkToken.sol";
 
 
 contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
@@ -13,9 +14,13 @@ contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
     
     mapping (address => uint) balances;
     
+    FunParkToken token;
+    
     function FunPark () 
         Pausable(false)
     {
+        token = new FunParkToken();
+        
     }
     
     function registerCustomer (address customer) 
@@ -92,6 +97,26 @@ contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
         balances[owner] += attractionFee;
         
         LogAttractionEntered(attraction, msg.sender, attractionFee);
+        return true;
+    }
+    
+    function enterAttractionWithToken (address attraction)
+        public
+        returns (bool success)
+    {
+        require(isAttraction(attraction) == true);
+        require(isPaused() == false);
+        require(attraction != address(0));
+        require(isRegisteredCustomer(msg.sender) == true);
+
+        uint attractionFeeInTokens = getAttractionFeeInTokens(attraction);
+        uint tokenBalance = token.balanceOf(msg.sender);
+        
+        require(attractionFeeInTokens <= tokenBalance);
+        if (token.transferFrom(this, msg.sender, attractionFeeInTokens) == false) {
+            revert();
+        }        
+        
         return true;
     }
     

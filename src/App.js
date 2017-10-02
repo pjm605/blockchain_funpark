@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import { Link, Switch, Route } from 'react-router-dom';
 import getWeb3 from './utils/getWeb3';
 
-import MetaCoinJSON from "../build/contracts/MetaCoin.json";
+import HubJSON from "../build/contracts/Hub.json";
 
 class App extends Component {
 	constructor(props) {
@@ -32,17 +32,18 @@ class App extends Component {
 
 	instantiateContract() {
 		const contract = require('truffle-contract');
-    	const MetaCoin = contract(MetaCoinJSON);
+    	const Hub = contract(HubJSON);
 
-    	MetaCoin.setProvider(this.state.web3.currentProvider);
+    	Hub.setProvider(this.state.web3.currentProvider);
 
     	this.state.web3.eth.getAccounts((error, accounts) => {
-    		MetaCoin.deployed().then((instance) => {
+    		Hub.deployed().then((instance) => {
     			this.setState({
 	    			accounts: accounts,
 	    			instance: instance
 	    		})
-	    		console.log(accounts[0])
+	    		console.log(accounts[0]);
+	    		console.log(instance);
     			return this.state.web3.eth.getBalance(accounts[0]);
 
     		})

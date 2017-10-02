@@ -7,13 +7,14 @@ contract AttractionHolder is AttractionHolderI, Owned {
     
     struct AttractionStruct {
         uint fee;
+        uint feeInTokens;
         uint index;
     }
     
     mapping (address => AttractionStruct) attractions;
     address[] private attractionsIndex;
      
-    function addNewAttraction (address attraction, uint _fee) 
+    function addNewAttraction (address attraction, uint _fee, uint _feeInTokens) 
         public
         fromOwner
         returns (address newAttraction)
@@ -22,6 +23,7 @@ contract AttractionHolder is AttractionHolderI, Owned {
         require(_fee != 0);
         require(isAttraction(attraction) == false);
         attractions[attraction].fee = _fee;
+        attractions[attraction].feeInTokens = _feeInTokens;
         attractions[attraction].index = attractionsIndex.push(attraction)-1;
         
         LogAttractionAdded(msg.sender, attraction, _fee);
@@ -44,10 +46,19 @@ contract AttractionHolder is AttractionHolderI, Owned {
     function getAttractionFee (address attraction) 
         constant
         public
-        returns(uint)
+        returns(uint attractionFee)
     {
         require(isAttraction(attraction) == true);
         return attractions[attraction].fee;
+    }
+    
+    function getAttractionFeeInTokens (address attraction) 
+        constant
+        public
+        returns(uint attractionFeeInTokens)
+    {
+        require(isAttraction(attraction) == true);
+        return attractions[attraction].feeInTokens;
     }
     
     function isAttraction (address attraction)

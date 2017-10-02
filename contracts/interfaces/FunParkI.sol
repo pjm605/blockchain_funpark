@@ -13,6 +13,7 @@ contract FunParkI {
     event LogRemoveCustomer(
         address indexed customer);
         
+        
     function removeCustomer (address customer)
         public
         returns (bool success);
@@ -34,6 +35,10 @@ contract FunParkI {
     function enterAttraction (address attraction)
         public
         payable
+        returns (bool success);
+        
+    function enterAttractionWithToken (address attraction)
+        public
         returns (bool success);
         
     function getCollectedFeesAmount ()

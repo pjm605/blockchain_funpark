@@ -5,10 +5,12 @@ import "./Owned.sol";
 import "./Pausable.sol";
 import "./AttractionHolder.sol";
 import "./FunParkToken.sol";
+import "./SafeMath.sol";
 
 
 contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
-    
+    using SafeMath for uint;
+ 
     mapping (address => uint256) public registeredCustomers;
     address[] private registeredCustomersIndex;
     
@@ -74,7 +76,7 @@ contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
         require(isRegisteredCustomer(msg.sender) == true);
         require(msg.value > 0);
         
-        balances[msg.sender] += msg.value;
+        balances[msg.sender] = balances[msg.sender].add(msg.value);
         
         LogCustomerDeposit(msg.sender, msg.value);
         return true;
@@ -93,9 +95,9 @@ contract FunPark is FunParkI, Owned, Pausable, AttractionHolder {
         uint attractionFee = getAttractionFee(attraction);
         require (balances[msg.sender] >= attractionFee);
         
-        balances[msg.sender] -= attractionFee;
-        balances[owner] += attractionFee;
-        
+        balances[msg.sender] = balances[msg.sender].sub(attractionFee);
+        balances[owner] = balances[owner].add(attractionFee);
+
         LogAttractionEntered(attraction, msg.sender, attractionFee);
         return true;
     }

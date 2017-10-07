@@ -2,10 +2,11 @@ pragma solidity ^0.4.13;
 
 import "./interfaces/ERC20TokenI.sol";
 import "./Owned.sol";
-
+import "./SafeMath.sol";
 
 contract FunParkToken is ERC20TokenI, Owned
 {
+	using SafeMath for uint;
 	// symbol and name
 	string public constant symbol = "FunParkToken";
 	string public constant name = "FunPark Token Example";
@@ -48,11 +49,9 @@ contract FunParkToken is ERC20TokenI, Owned
 		require(_to != address(0));
 		require(_value > 0);
 		require(balances[msg.sender] >= _value);
-		// handle overflow
-		require(balances[_to] + _value > balances[_to]);
 
-		balances[msg.sender] -= _value;
-		balances[_to] += _value;
+		balances[msg.sender] = balances[msg.sender].sub(_value);
+		balances[_to] = balances[_to].add(_value);
 		Transfer(msg.sender, _to, _value);
 		return true;
 	}
@@ -67,11 +66,10 @@ contract FunParkToken is ERC20TokenI, Owned
 
 		require(allowance(_from, _to) >= _value);
 		require(balances[_from] >= _value);
-		require(balances[_to] + _value > balances[_to]);
 
-		allowed[_from][_to] -= _value;
-		balances[_from] -= _value;
-		balances[_to] += _value;
+		allowed[_from][_to] = allowed[_from][_to].sub(_value);
+		balances[_from] = balances[_from].sub(_value);
+		balances[_to] = balances[_to].add(_value);
 		Transfer(_from, _to, _value);
 
 		return true;

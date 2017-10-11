@@ -8,6 +8,7 @@ import FunParkJSON from "../build/contracts/FunPark.json";
 import AccountInfo from "./components/AccountInfo.js";
 import FunParkInfo from "./components/FunParkInfo.js";
 import Hub from "./components/Hub/Hub.js";
+import FunPark from "./components/FunPark/FunPark.js";
 
 class App extends Component {
 	constructor(props) {
@@ -24,10 +25,12 @@ class App extends Component {
 			funParkInstance: null,
 			funParks: [],
 			currFunPark: null,
-			currFunParkOwner: null
+			currFunParkOwner: null,
+			registeredCustomers: []
 		}
 
 		this.setAccount = this.setAccount.bind(this);
+		this.setFunPark = this.setFunPark.bind(this);
 	}
 
 	componentWillMount() {
@@ -61,10 +64,10 @@ class App extends Component {
 	    			hubOwner: accounts[0]
 	    		})
 
+   
     			this.watchFunParkCreated();
 
     			return this.state.web3.eth.getBalance(accounts[0]);
-
     		})
     		.then(balance => {
     			return this.setState({
@@ -107,6 +110,8 @@ class App extends Component {
 				currFunPark: address,
 				currFunParkOwner: funParkOwner
 			})
+
+			this.watchRegisterCustomer();
 		})
 		.catch(err => {
 			console.log("Error setting funpark", err);
@@ -130,6 +135,21 @@ class App extends Component {
 		})
 	}
 
+	watchRegisterCustomer () {
+		this.state.funParkInstance.LogRegisterCustomer({}, {fromBlock: 0})
+		.watch((err, newCusotmer) => {
+			if (err) {
+			} else {
+				let registeredCustomers = this.state.registeredCustomers;
+				registeredCustomers.push(newCusotmer);
+
+				this.setState({
+					registeredCustomers: registeredCustomers
+				})
+			}
+		})
+	}
+
 
 	render() {
 		return (
@@ -143,11 +163,14 @@ class App extends Component {
 
 					<FunParkInfo
 				        funParks={this.state.funParks} 
-				        setFunPark={this.setFunPark} />
+				        setFunPark={this.setFunPark}
+				        currFunPark={this.state.currFunPark} />
+
 				   	<div className="row">
 						<nav className="navbar navbar-inverse">
 							<ul className="nav navbar-nav">
 								<li className="nav-item"><Link to="/">Hub</Link></li>
+								<li className="nav-item"><Link to="/funpark">FunPark</Link></li>
 							</ul>
 						</nav>
 					</div>
@@ -159,8 +182,13 @@ class App extends Component {
 					            exact path='/' 
 					            render={(props) => <Hub {...props}  
 					            hubInstance={this.state.hubInstance}
-					            hubOwner={this.state.hubOwner} />} 
-					         />
+					            hubOwner={this.state.hubOwner} />} />
+					    	<Route 
+					            exact path='/funpark' 
+					            render={(props) => <FunPark {...props}  
+					            funParkInstance={this.state.funParkInstance}
+					            currFunParkOwner={this.state.currFunParkOwner}
+					            registeredCustomers={this.state.registeredCustomers} />} />
 						</Switch>
 					</div>
 				</div>

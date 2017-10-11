@@ -12,13 +12,14 @@ class Hub extends Component
 	}
 
 	createNewFunPark(owner) {
-		console.log(this.props.hubInstance)
+
 	    this.props.hubInstance.createNewFunPark(owner, {from: this.props.hubOwner, gas: 3000000})
 	    .then(result => {
 	      console.log("Successfully create new FunPark");
 	    })
 	    .catch(err => {
 	      console.log("Error creating new FunPark", err)
+	      alert (err);
 	    })
 	}
 
